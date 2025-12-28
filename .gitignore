@@ -1,0 +1,6 @@
+debug_report.jpg
+__pycache__/
+*.pyc
+.idea/
+.vscode/
+temp_*.jpg
