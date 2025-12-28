@@ -1,6 +1,6 @@
 # Explanation of the Noise Variance Detector
 
-This document explains the mathematics and logic behind the `NoiseVarianceDetector` module in DocuVerify Pro.
+This document explains the mathematics and logic behind the `NoiseVarianceDetector` module in TrueTrace.
 
 ## 1. Goal: Detecting Splicing and Tampering
 

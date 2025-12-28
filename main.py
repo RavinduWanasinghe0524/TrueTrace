@@ -509,7 +509,7 @@ def main(image_path: str):
 
 
 
-    table = Table(title="[bold]DocuVerify Pro Analysis Report[/bold]")
+    table = Table(title="[bold]TrueTrace Analysis Report[/bold]")
 
     table.add_column("Detector", style="cyan", no_wrap=True)
 
