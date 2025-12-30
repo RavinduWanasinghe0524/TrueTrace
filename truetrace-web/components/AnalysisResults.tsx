@@ -2,6 +2,9 @@
 
 import { motion } from 'framer-motion';
 import { AnalysisResult } from '@/lib/types';
+import ConfidenceMeter from './ConfidenceMeter';
+import RadarChart from './RadarChart';
+import AnalysisTimeline from './AnalysisTimeline';
 
 interface AnalysisResultsProps {
   result: AnalysisResult;
@@ -60,55 +63,12 @@ export default function AnalysisResults({ result }: AnalysisResultsProps) {
             Analysis Complete
           </h2>
 
-          <div className="flex flex-col md:flex-row items-center justify-center gap-8">
-            {/* Circular Progress */}
-            <div className="relative w-48 h-48">
-              <svg className="w-full h-full transform -rotate-90">
-                <circle
-                  cx="96"
-                  cy="96"
-                  r="88"
-                  stroke="rgba(255,255,255,0.1)"
-                  strokeWidth="12"
-                  fill="none"
-                />
-                <circle
-                  cx="96"
-                  cy="96"
-                  r="88"
-                  stroke="url(#gradient)"
-                  strokeWidth="12"
-                  fill="none"
-                  strokeDasharray={`${(result.finalScore / 100) * 553} 553`}
-                  strokeLinecap="round"
-                  className="transition-all duration-1000 ease-out"
-                />
-                <defs>
-                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" className={`${result.finalScore < 30 ? 'stop-color-green-500' : result.finalScore < 70 ? 'stop-color-yellow-500' : 'stop-color-red-500'}`} />
-                    <stop offset="100%" className={`${result.finalScore < 30 ? 'stop-color-emerald-500' : result.finalScore < 70 ? 'stop-color-orange-500' : 'stop-color-pink-500'}`} />
-                  </linearGradient>
-                </defs>
-              </svg>
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-5xl font-bold">{result.finalScore.toFixed(1)}%</span>
-                <span className="text-sm text-gray-400 mt-1">Fake Probability</span>
-              </div>
-            </div>
+          <div className="grid md:grid-cols-2 gap-12 items-center">
+            {/* Confidence Meter */}
+            <ConfidenceMeter score={result.finalScore} />
 
-            {/* Score Details */}
-            <div className="text-center md:text-left">
-              <div className={`inline-block px-6 py-3 rounded-full bg-gradient-to-r ${getFakeProbabilityColor(result.finalScore)} text-white font-bold mb-4`}>
-                {getFakeProbabilityLabel(result.finalScore)}
-              </div>
-              <p className="text-gray-300 max-w-md">
-                {result.finalScore < 30
-                  ? 'The image appears to be authentic with minimal signs of manipulation.'
-                  : result.finalScore < 70
-                  ? 'Some signs of potential manipulation detected. Further investigation recommended.'
-                  : 'High likelihood of manipulation detected. This image shows significant signs of forgery.'}
-              </p>
-            </div>
+            {/* Radar Chart */}
+            <RadarChart results={result.results} />
           </div>
         </div>
 
@@ -143,6 +103,11 @@ export default function AnalysisResults({ result }: AnalysisResultsProps) {
               </div>
             </motion.div>
           ))}
+        </div>
+
+        {/* Analysis Timeline */}
+        <div className="glass rounded-3xl p-8">
+          <AnalysisTimeline results={result.results} />
         </div>
       </motion.div>
     </div>
