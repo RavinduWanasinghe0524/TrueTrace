@@ -129,7 +129,7 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.9 }}
             className="flex flex-wrap justify-center gap-3 mb-12"
           >
-            {['Metadata Analysis', 'ELA Detection', 'Noise Variance'].map((feature, index) => (
+            {['Metadata Analysis', 'ELA Detection', 'Noise Variance'].map((feature) => (
               <motion.div
                 key={feature}
                 className="glass px-6 py-3 rounded-full hover:glass-strong transition-all duration-300 cursor-default group"
