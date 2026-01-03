@@ -61,7 +61,7 @@ export default function FileUpload({ onAnalyze, isAnalyzing }: FileUploadProps) 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
         className="max-w-4xl mx-auto"
       >
         {!preview ? (
@@ -70,7 +70,7 @@ export default function FileUpload({ onAnalyze, isAnalyzing }: FileUploadProps) 
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             className={`relative glass rounded-3xl p-12 border-2 border-dashed transition-all duration-300 cursor-pointer group hover:glass-strong ${
-              isDragging ? 'border-blue-500 glass-strong scale-105' : 'border-white/20'
+              isDragging ? 'border-cyan-500 glass-strong scale-[1.02]' : 'border-white/20'
             }`}
           >
             <input
@@ -83,9 +83,9 @@ export default function FileUpload({ onAnalyze, isAnalyzing }: FileUploadProps) 
 
             <div className="text-center">
               <div className="mb-6 flex justify-center">
-                <div className="w-24 h-24 rounded-full glass-strong flex items-center justify-center group-hover:scale-110 transition-transform">
+                <div className="w-24 h-24 rounded-full glass-strong flex items-center justify-center group-hover:scale-110 transition-all duration-300">
                   <svg
-                    className="w-12 h-12 text-blue-400"
+                    className="w-12 h-12 text-cyan-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -138,7 +138,7 @@ export default function FileUpload({ onAnalyze, isAnalyzing }: FileUploadProps) 
               <button
                 onClick={handleAnalyze}
                 disabled={isAnalyzing}
-                className="px-8 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl hover:from-blue-500 hover:to-purple-500 transition-all duration-300 font-bold disabled:opacity-50 disabled:cursor-not-allowed flex-1 relative overflow-hidden group"
+                className="px-8 py-3 bg-gradient-to-r from-cyan-600 to-emerald-600 rounded-xl hover:from-cyan-500 hover:to-emerald-500 transition-all duration-300 font-bold disabled:opacity-50 disabled:cursor-not-allowed flex-1 relative overflow-hidden group"
               >
                 {isAnalyzing ? (
                   <span className="flex items-center justify-center gap-2">
