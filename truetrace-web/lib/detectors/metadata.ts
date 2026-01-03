@@ -4,14 +4,20 @@ import { DetectorResult } from '../types';
 
 export async function analyzeMetadata(imageBuffer: Buffer): Promise<DetectorResult> {
     try {
-        const metadata = await sharp(imageBuffer).metadata();
+        await sharp(imageBuffer).metadata();
 
         // Try to parse EXIF data
-        let exifData: any = null;
+        interface ParsedExifData {
+            tags?: {
+                Software?: string;
+                CreateDate?: number;
+            };
+        }
+        let exifData: ParsedExifData | null = null;
         try {
             const parser = ExifParser.create(imageBuffer);
             exifData = parser.parse();
-        } catch (e) {
+        } catch {
             // No EXIF data available
         }
 

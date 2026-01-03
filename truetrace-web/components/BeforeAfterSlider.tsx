@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 
@@ -31,19 +31,19 @@ export default function BeforeAfterSlider({
   };
 
   const handleMouseDown = () => setIsDragging(true);
-  const handleMouseUp = () => setIsDragging(false);
-
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!isDragging) return;
-    handleMove(e.clientX);
-  };
-
-  const handleTouchMove = (e: TouchEvent) => {
-    if (!isDragging) return;
-    handleMove(e.touches[0].clientX);
-  };
+  const handleMouseUp = useCallback(() => setIsDragging(false), []);
 
   useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      handleMove(e.clientX);
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isDragging) return;
+      handleMove(e.touches[0].clientX);
+    };
+
     if (isDragging) {
       window.addEventListener('mousemove', handleMouseMove);
       window.addEventListener('mouseup', handleMouseUp);
@@ -57,7 +57,7 @@ export default function BeforeAfterSlider({
       window.removeEventListener('touchmove', handleTouchMove);
       window.removeEventListener('touchend', handleMouseUp);
     };
-  }, [isDragging]);
+  }, [isDragging, handleMouseUp]);
 
   return (
     <div

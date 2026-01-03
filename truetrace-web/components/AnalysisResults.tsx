@@ -37,18 +37,6 @@ export default function AnalysisResults({ result }: AnalysisResultsProps) {
     }
   };
 
-  const getFakeProbabilityColor = (score: number) => {
-    if (score < 30) return 'from-green-500 to-emerald-500';
-    if (score < 70) return 'from-yellow-500 to-orange-500';
-    return 'from-red-500 to-pink-500';
-  };
-
-  const getFakeProbabilityLabel = (score: number) => {
-    if (score < 30) return 'Low Risk';
-    if (score < 70) return 'Medium Risk';
-    return 'High Risk';
-  };
-
   return (
     <div className="container mx-auto px-4 py-12">
       <motion.div

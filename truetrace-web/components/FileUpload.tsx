@@ -24,6 +24,15 @@ export default function FileUpload({ onAnalyze, isAnalyzing }: FileUploadProps) 
     setIsDragging(false);
   }, []);
 
+  const handleFileSelect = useCallback((file: File) => {
+    setSelectedFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setPreview(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  }, []);
+
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
@@ -32,16 +41,7 @@ export default function FileUpload({ onAnalyze, isAnalyzing }: FileUploadProps) 
     if (file && file.type.startsWith('image/')) {
       handleFileSelect(file);
     }
-  }, []);
-
-  const handleFileSelect = (file: File) => {
-    setSelectedFile(file);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      setPreview(e.target?.result as string);
-    };
-    reader.readAsDataURL(file);
-  };
+  }, [handleFileSelect]);
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
