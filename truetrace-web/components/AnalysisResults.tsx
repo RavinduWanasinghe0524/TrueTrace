@@ -42,7 +42,7 @@ export default function AnalysisResults({ result }: AnalysisResultsProps) {
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
         className="max-w-6xl mx-auto space-y-8"
       >
         {/* Overall Score Card */}
@@ -67,7 +67,7 @@ export default function AnalysisResults({ result }: AnalysisResultsProps) {
               key={detectorResult.detector}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              transition={{ duration: 0.4, delay: index * 0.08, ease: [0.4, 0, 0.2, 1] }}
               className={`glass rounded-2xl p-6 border-2 ${getResultColor(detectorResult.result)}`}
             >
               <div className="flex items-center justify-between mb-4">

@@ -20,16 +20,17 @@ export default function LoadingScreen({ progress = 0, stage = 'Initializing...' 
 
   return (
     <motion.div
-      className="fixed inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-gradient-to-br from-slate-900 via-cyan-950 to-slate-900 flex items-center justify-center z-50"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
     >
       {/* Animated Background */}
       <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse-slow" />
-        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse-slow" style={{ animationDelay: '1s' }} />
-        <div className="absolute bottom-1/4 left-1/2 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse-slow" style={{ animationDelay: '2s' }} />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse-slow" />
+        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-emerald-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse-slow" style={{ animationDelay: '1.3s' }} />
+        <div className="absolute bottom-1/4 left-1/2 w-96 h-96 bg-teal-500 rounded-full mix-blend-multiply filter blur-3xl animate-pulse-slow" style={{ animationDelay: '2.6s' }} />
       </div>
 
       <div className="relative z-10 flex flex-col items-center max-w-md px-6">
@@ -38,15 +39,15 @@ export default function LoadingScreen({ progress = 0, stage = 'Initializing...' 
           className="mb-12 flex items-center gap-3"
           initial={{ scale: 0.5, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.6, type: 'spring' }}
+          transition={{ duration: 0.5, type: 'spring', bounce: 0.4 }}
         >
           <motion.div
-            className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center font-bold text-2xl shadow-2xl"
+            className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-emerald-600 rounded-2xl flex items-center justify-center font-bold text-2xl shadow-2xl"
             animate={{
               rotateY: [0, 360],
             }}
             transition={{
-              duration: 2,
+              duration: 3,
               repeat: Infinity,
               ease: 'linear'
             }}
@@ -80,14 +81,14 @@ export default function LoadingScreen({ progress = 0, stage = 'Initializing...' 
               strokeDasharray="553"
               initial={{ strokeDashoffset: 553 }}
               animate={{ strokeDashoffset: 553 - (progress / 100) * 553 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
               strokeLinecap="round"
             />
             <defs>
               <linearGradient id="loadingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#60a5fa" />
-                <stop offset="50%" stopColor="#a855f7" />
-                <stop offset="100%" stopColor="#ec4899" />
+                <stop offset="0%" stopColor="#06b6d4" />
+                <stop offset="50%" stopColor="#10b981" />
+                <stop offset="100%" stopColor="#14b8a6" />
               </linearGradient>
             </defs>
           </svg>
@@ -130,9 +131,9 @@ export default function LoadingScreen({ progress = 0, stage = 'Initializing...' 
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
             >
-              <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+              <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-500 ${
                 step.complete
-                  ? 'bg-gradient-to-r from-green-500 to-emerald-500 border-green-500'
+                  ? 'bg-gradient-to-r from-cyan-500 to-emerald-500 border-cyan-500'
                   : 'border-gray-600'
               }`}>
                 {step.complete && (
@@ -157,12 +158,12 @@ export default function LoadingScreen({ progress = 0, stage = 'Initializing...' 
 
         {/* Scanning Animation */}
         <motion.div
-          className="mt-8 w-full h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent"
+          className="mt-8 w-full h-1 bg-gradient-to-r from-transparent via-cyan-500 to-transparent"
           animate={{
             x: ['-100%', '200%'],
           }}
           transition={{
-            duration: 1.5,
+            duration: 2,
             repeat: Infinity,
             ease: 'linear'
           }}
