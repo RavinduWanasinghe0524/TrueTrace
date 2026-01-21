@@ -119,9 +119,10 @@ export default function LoadingScreen({ progress = 0, stage = 'Initializing...' 
         {/* Progress Steps */}
         <div className="w-full space-y-2">
           {[
-            { name: 'Metadata Analysis', complete: progress > 25 },
-            { name: 'Error Level Analysis', complete: progress > 50 },
-            { name: 'Noise Variance Detection', complete: progress > 75 },
+            { name: 'AI Forensic Analysis', complete: progress > 20 },
+            { name: 'Metadata Analysis', complete: progress > 40 },
+            { name: 'Error Level Analysis', complete: progress > 60 },
+            { name: 'Noise Variance Detection', complete: progress > 80 },
             { name: 'Finalizing Results', complete: progress >= 100 }
           ].map((step, index) => (
             <motion.div

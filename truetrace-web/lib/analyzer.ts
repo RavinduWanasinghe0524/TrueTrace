@@ -1,27 +1,31 @@
 import { analyzeMetadata } from './detectors/metadata';
 import { analyzeELA } from './detectors/ela';
 import { analyzeNoiseVariance } from './detectors/noise-variance';
+import { analyzeWithAI } from './detectors/ai-forensics';
 import { AnalysisResult } from './types';
 
 export async function analyzeImage(imageBuffer: Buffer): Promise<AnalysisResult> {
     // Run all detectors in parallel
-    const [metadataResult, elaAnalysis, noiseAnalysis] = await Promise.all([
+    const [metadataResult, elaAnalysis, noiseAnalysis, aiResult] = await Promise.all([
         analyzeMetadata(imageBuffer),
         analyzeELA(imageBuffer),
         analyzeNoiseVariance(imageBuffer),
+        analyzeWithAI(imageBuffer),
     ]);
 
     const results = [
         metadataResult,
         elaAnalysis.result,
         noiseAnalysis.result,
+        aiResult,
     ];
 
-    // Calculate weighted final score
+    // Calculate weighted final score with AI having significant weight
     const weights = {
-        Metadata: 0.2,
-        ELA: 0.4,
-        'Noise Variance': 0.4,
+        Metadata: 0.15,
+        ELA: 0.25,
+        'Noise Variance': 0.25,
+        'AI Forensics': 0.35, // AI gets highest weight
     };
 
     const finalScore = results.reduce((total, result) => {

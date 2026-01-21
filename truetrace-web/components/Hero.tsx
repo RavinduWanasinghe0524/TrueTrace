@@ -109,7 +109,7 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.3, ease: [0.4, 0, 0.2, 1] }}
             className="text-xl md:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto"
           >
-            Advanced AI-Powered Document Forgery Detection
+            AI-Powered Document Forgery Detection System
           </motion.p>
 
           {/* Description */}
@@ -119,8 +119,8 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.4, ease: [0.4, 0, 0.2, 1] }}
             className="text-md text-gray-400 mb-12 max-w-2xl mx-auto"
           >
-            Upload any image to detect signs of manipulation using three powerful detection methods: 
-            Metadata Analysis, Error Level Analysis (ELA), and Noise Variance Detection.
+            Upload any image to detect signs of manipulation using four powerful detection methods: 
+            AI Forensics, Metadata Analysis, Error Level Analysis (ELA), and Noise Variance Detection.
           </motion.p>
 
           {/* Feature Pills */}
@@ -130,7 +130,7 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.5, ease: [0.4, 0, 0.2, 1] }}
             className="flex flex-wrap justify-center gap-3 mb-12"
           >
-            {['Metadata Analysis', 'ELA Detection', 'Noise Variance'].map((feature, index) => (
+            {['AI Forensics', 'Metadata Analysis', 'ELA Detection', 'Noise Variance'].map((feature, index) => (
               <motion.div
                 key={feature}
                 initial={{ opacity: 0, scale: 0.8 }}
