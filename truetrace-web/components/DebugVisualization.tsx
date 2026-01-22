@@ -27,12 +27,13 @@ export default function DebugVisualization({ elaImage, noiseMap, originalImage }
         transition={{ duration: 0.6 }}
         className="max-w-6xl mx-auto"
       >
+        {/* SIMPLIFIED TITLE */}
         <h2 className="text-3xl font-bold mb-6 gradient-text text-center">
-          Debug Visualization
+          See What We Found
         </h2>
 
         <div className="glass rounded-3xl p-8">
-          {/* Tab Buttons */}
+          {/* Tab Buttons - SIMPLIFIED */}
           <div className="flex gap-4 mb-6 flex-wrap">
             <button
               onClick={() => setActiveTab('ela')}
@@ -42,7 +43,7 @@ export default function DebugVisualization({ elaImage, noiseMap, originalImage }
                   : 'glass hover:glass-strong'
               }`}
             >
-              Error Level Analysis
+              🔍 Editing Highlights
             </button>
             <button
               onClick={() => setActiveTab('noise')}
@@ -52,7 +53,7 @@ export default function DebugVisualization({ elaImage, noiseMap, originalImage }
                   : 'glass hover:glass-strong'
               }`}
             >
-              Noise Variance Map
+              📊 Pattern Map
             </button>
             {originalImage && (
               <button
@@ -63,7 +64,7 @@ export default function DebugVisualization({ elaImage, noiseMap, originalImage }
                     : 'glass hover:glass-strong'
                 }`}
               >
-                🔍 Compare
+                🔄 Compare
               </button>
             )}
           </div>
@@ -74,7 +75,7 @@ export default function DebugVisualization({ elaImage, noiseMap, originalImage }
               beforeImage={originalImage}
               afterImage={elaImage}
               beforeLabel="Original"
-              afterLabel="ELA Analysis"
+              afterLabel="With Highlights"
             />
           ) : (
             <div className={`relative aspect-video rounded-2xl overflow-hidden glass-strong ${isFullscreen ? 'fixed inset-4 z-50 aspect-auto' : ''}`}>
@@ -88,7 +89,7 @@ export default function DebugVisualization({ elaImage, noiseMap, originalImage }
               >
                 <Image
                   src={activeTab === 'ela' ? elaImage : noiseMap}
-                  alt={activeTab === 'ela' ? 'ELA Analysis' : 'Noise Variance Map'}
+                  alt={activeTab === 'ela' ? 'Editing Highlights' : 'Pattern Map'}
                   fill
                   className="object-contain"
                 />
@@ -138,35 +139,35 @@ export default function DebugVisualization({ elaImage, noiseMap, originalImage }
             </div>
           )}
 
-          {/* Explanation */}
+          {/* Explanation - SIMPLIFIED */}
           <div className="mt-6 glass rounded-xl p-6">
             <h3 className="font-bold text-lg mb-3 text-blue-400">
-              {activeTab === 'ela' ? '📊 What is ELA?' : activeTab === 'noise' ? '🔍 What is Noise Variance?' : '🔄 Interactive Comparison'}
+              {activeTab === 'ela' ? '🔍 What are Editing Highlights?' : activeTab === 'noise' ? '📊 What is the Pattern Map?' : '🔄 Interactive Comparison'}
             </h3>
             <p className="text-gray-300 text-sm leading-relaxed">
               {activeTab === 'ela'
-                ? 'Error Level Analysis (ELA) identifies areas of an image that may have been modified by analyzing compression levels. Bright areas in the ELA image indicate regions that have different compression characteristics from the rest of the image, suggesting potential manipulation.'
+                ? 'Bright or colorful areas show parts of the image that might have been edited. When someone edits a photo, those edited parts often have different quality than the rest. This tool highlights those differences.'
                 : activeTab === 'noise'
-                ? 'Noise Variance Detection analyzes the consistency of noise patterns across an image. Edited or spliced regions often have different noise characteristics than the original image. Areas with significantly different noise levels appear distinct in this visualization, indicating potential tampering.'
-                : 'Use the slider to compare the original image with the analysis results. Drag left or right to reveal differences and identify manipulated areas.'}
+                ? 'Every photo has tiny random dots (called "noise"). Real photos have consistent noise patterns. If someone edits a photo by copying and pasting, the noise patterns won\'t match. Different colors in this map show areas with different noise patterns.'
+                : 'Use the slider to compare your original photo with our analysis. Drag left or right to see the differences and spot any edited areas.'}
             </p>
           </div>
 
-          {/* Download Buttons */}
+          {/* Download Buttons - SIMPLIFIED */}
           <div className="mt-6 flex gap-4 flex-wrap">
             <a
               href={elaImage}
-              download="ela-analysis.jpg"
+              download="editing-highlights.jpg"
               className="flex-1 min-w-[200px] px-6 py-3 glass rounded-xl hover:glass-strong transition-all duration-300 text-center font-medium magnetic-btn"
             >
-              📥 Download ELA Image
+              📥 Save Editing Highlights
             </a>
             <a
               href={noiseMap}
-              download="noise-map.jpg"
+              download="pattern-map.jpg"
               className="flex-1 min-w-[200px] px-6 py-3 glass rounded-xl hover:glass-strong transition-all duration-300 text-center font-medium magnetic-btn"
             >
-              📥 Download Noise Map
+              📥 Save Pattern Map
             </a>
           </div>
         </div>

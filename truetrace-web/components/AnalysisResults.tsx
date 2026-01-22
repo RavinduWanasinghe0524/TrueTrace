@@ -2,100 +2,118 @@
 
 import { motion } from 'framer-motion';
 import { AnalysisResult } from '@/lib/types';
-import ConfidenceMeter from './ConfidenceMeter';
-import RadarChart from './RadarChart';
-import AnalysisTimeline from './AnalysisTimeline';
+import { useState } from 'react';
 
 interface AnalysisResultsProps {
   result: AnalysisResult;
 }
 
 export default function AnalysisResults({ result }: AnalysisResultsProps) {
-  const getResultColor = (resultType: string) => {
-    switch (resultType) {
-      case 'Pass':
-        return 'text-green-400 border-green-500/30 bg-green-500/10';
-      case 'Fail':
-        return 'text-red-400 border-red-500/30 bg-red-500/10';
-      case 'Warning':
-        return 'text-yellow-400 border-yellow-500/30 bg-yellow-500/10';
-      default:
-        return 'text-gray-400 border-gray-500/30 bg-gray-500/10';
+  const [showDetails, setShowDetails] = useState(false);
+
+  // Determine simple verdict
+  const getVerdict = () => {
+    if (result.finalScore >= 70) {
+      return {
+        emoji: '✅',
+        title: 'YOUR PHOTO IS REAL',
+        message: 'We didn\'t find signs of editing',
+        color: 'text-green-400',
+        bgColor: 'bg-green-500/10',
+        borderColor: 'border-green-500/30'
+      };
+    } else if (result.finalScore >= 40) {
+      return {
+        emoji: '⚠️',
+        title: 'YOUR PHOTO MIGHT BE EDITED',
+        message: 'We found some unusual things',
+        color: 'text-yellow-400',
+        bgColor: 'bg-yellow-500/10',
+        borderColor: 'border-yellow-500/30'
+      };
+    } else {
+      return {
+        emoji: '❌',
+        title: 'YOUR PHOTO WAS EDITED',
+        message: 'We found clear signs of editing',
+        color: 'text-red-400',
+        bgColor: 'bg-red-500/10',
+        borderColor: 'border-red-500/30'
+      };
     }
   };
 
-  const getResultIcon = (resultType: string) => {
-    switch (resultType) {
-      case 'Pass':
-        return '✓';
-      case 'Fail':
-        return '✕';
-      case 'Warning':
-        return '⚠';
-      default:
-        return '?';
-    }
-  };
+  const verdict = getVerdict();
 
   return (
     <div className="container mx-auto px-4 py-12">
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-        className="max-w-6xl mx-auto space-y-8"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-3xl mx-auto"
       >
-        {/* Overall Score Card */}
-        <div className="glass rounded-3xl p-8">
-          <h2 className="text-3xl font-bold mb-6 gradient-text text-center">
-            Analysis Complete
+        {/* MAIN RESULT - HUGE AND CLEAR */}
+        <div className={`glass rounded-3xl p-12 text-center border-2 ${verdict.borderColor} ${verdict.bgColor}`}>
+          {/* Giant Emoji */}
+          <div className="text-9xl mb-6">
+            {verdict.emoji}
+          </div>
+
+          {/* Giant Verdict */}
+          <h2 className={`text-5xl md:text-6xl font-bold mb-6 ${verdict.color}`}>
+            {verdict.title}
           </h2>
 
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            {/* Confidence Meter */}
-            <ConfidenceMeter score={result.finalScore} />
+          {/* Simple Message */}
+          <p className="text-2xl md:text-3xl text-white mb-8">
+            {verdict.message}
+          </p>
 
-            {/* Radar Chart */}
-            <RadarChart results={result.results} />
+          {/* Confidence Score - Simple */}
+          <div className="inline-block px-8 py-4 glass rounded-2xl">
+            <p className="text-gray-400 text-sm mb-1">Confidence</p>
+            <p className="text-4xl font-bold gradient-text">{result.finalScore}%</p>
           </div>
         </div>
 
-        {/* Individual Detector Results */}
-        <div className="grid md:grid-cols-3 gap-6">
-          {result.results.map((detectorResult, index) => (
+        {/* Optional Details - Collapsed by Default */}
+        <div className="mt-8">
+          <button
+            onClick={() => setShowDetails(!showDetails)}
+            className="w-full px-6 py-4 glass rounded-xl hover:bg-white/10 transition-all text-lg"
+          >
+            {showDetails ? '▲ Hide Technical Details' : '▼ Show Technical Details'}
+          </button>
+
+          {showDetails && (
             <motion.div
-              key={detectorResult.detector}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.08, ease: [0.4, 0, 0.2, 1] }}
-              className={`glass rounded-2xl p-6 border-2 ${getResultColor(detectorResult.result)}`}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="mt-4 glass rounded-xl p-6"
             >
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-lg">{detectorResult.detector}</h3>
-                <span className="text-3xl">{getResultIcon(detectorResult.result)}</span>
-              </div>
-
-              <div className={`inline-block px-4 py-1 rounded-full text-sm font-semibold mb-3 ${getResultColor(detectorResult.result)}`}>
-                {detectorResult.result}
-              </div>
-
-              <p className="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap">
-                {detectorResult.details}
-              </p>
-
-              <div className="mt-4 pt-4 border-t border-white/10">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-400">Score</span>
-                  <span className="font-bold">{detectorResult.score}%</span>
-                </div>
+              <h3 className="text-xl font-bold mb-4 text-white">
+                We ran {result.results.length} checks on your photo:
+              </h3>
+              
+              <div className="space-y-3">
+                {result.results.map((check, index) => {
+                  const icon = check.result === 'Pass' ? '✅' : check.result === 'Fail' ? '❌' : '⚠️';
+                  const statusText = check.result === 'Pass' ? 'Looks good' : check.result === 'Fail' ? 'Found issues' : 'Uncertain';
+                  
+                  return (
+                    <div key={index} className="flex items-start gap-3 p-3 bg-white/5 rounded-lg">
+                      <span className="text-2xl">{icon}</span>
+                      <div className="flex-1">
+                        <p className="font-semibold text-white">{check.detector}</p>
+                        <p className="text-sm text-gray-400">{statusText} ({check.score}%)</p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </motion.div>
-          ))}
-        </div>
-
-        {/* Analysis Timeline */}
-        <div className="glass rounded-3xl p-8">
-          <AnalysisTimeline results={result.results} />
+          )}
         </div>
       </motion.div>
     </div>
