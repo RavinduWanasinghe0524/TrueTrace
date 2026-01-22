@@ -10,19 +10,8 @@ interface FileUploadProps {
 }
 
 export default function FileUpload({ onAnalyze, isAnalyzing }: FileUploadProps) {
-  const [isDragging, setIsDragging] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  }, []);
 
   const handleFileSelect = useCallback((file: File) => {
     setSelectedFile(file);
@@ -32,16 +21,6 @@ export default function FileUpload({ onAnalyze, isAnalyzing }: FileUploadProps) 
     };
     reader.readAsDataURL(file);
   }, []);
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-      handleFileSelect(file);
-    }
-  }, [handleFileSelect]);
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -61,96 +40,67 @@ export default function FileUpload({ onAnalyze, isAnalyzing }: FileUploadProps) 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-        className="max-w-4xl mx-auto"
+        transition={{ duration: 0.5 }}
+        className="max-w-3xl mx-auto"
       >
         {!preview ? (
-          <div
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            className={`relative glass rounded-3xl p-12 border-2 border-dashed transition-all duration-300 cursor-pointer group hover:glass-strong ${
-              isDragging ? 'border-cyan-500 glass-strong scale-[1.02]' : 'border-white/20'
-            }`}
-          >
+          /* UPLOAD AREA - SUPER SIMPLE */
+          <div className="relative">
             <input
               type="file"
               accept="image/*"
               onChange={handleFileInput}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               disabled={isAnalyzing}
             />
-
-            <div className="text-center">
-              <div className="mb-6 flex justify-center">
-                <div className="w-24 h-24 rounded-full glass-strong flex items-center justify-center group-hover:scale-110 transition-all duration-300">
-                  <svg
-                    className="w-12 h-12 text-cyan-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                    />
-                  </svg>
-                </div>
+            <div className="glass rounded-3xl p-16 border-2 border-dashed border-white/30 hover:border-cyan-400 transition-all duration-300 cursor-pointer">
+              <div className="text-center">
+                {/* Big Upload Icon */}
+                <div className="text-8xl mb-6">📤</div>
+                
+                {/* Big Clear Text */}
+                <h3 className="text-4xl font-bold text-white mb-4">
+                  Click to Upload Your Photo
+                </h3>
+                
+                <p className="text-xl text-gray-400">
+                  Choose any photo from your computer
+                </p>
               </div>
-
-              <h3 className="text-2xl font-bold mb-2 gradient-text">
-                Upload Image for Analysis
-              </h3>
-              <p className="text-gray-400 mb-4">
-                Drag and drop your image here, or click to browse
-              </p>
-              <p className="text-sm text-gray-500">
-                Supports: JPEG, PNG • Max size: 10MB
-              </p>
             </div>
           </div>
         ) : (
-          <div className="glass rounded-3xl p-8 space-y-6">
-            <div className="relative aspect-video rounded-2xl overflow-hidden group">
+          /* PREVIEW & BUTTON - SUPER SIMPLE */
+          <div className="space-y-6">
+            {/* Photo Preview */}
+            <div className="relative aspect-video rounded-2xl overflow-hidden bg-black/50">
               <Image
                 src={preview}
-                alt="Preview"
+                alt="Your photo"
                 fill
                 className="object-contain"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </div>
 
-            <div className="flex gap-4">
+            {/* Two Simple Buttons */}
+            <div className="grid grid-cols-2 gap-4">
               <button
                 onClick={() => {
                   setPreview(null);
                   setSelectedFile(null);
                 }}
                 disabled={isAnalyzing}
-                className="px-6 py-3 glass rounded-xl hover:glass-strong transition-all duration-300 disabled:opacity-50 flex-1"
+                className="py-4 px-6 text-xl glass rounded-xl hover:bg-white/10 transition-all disabled:opacity-50"
               >
-                <span className="font-medium">Choose Different Image</span>
+                Choose Different Photo
               </button>
 
               <button
                 onClick={handleAnalyze}
                 disabled={isAnalyzing}
-                className="px-8 py-3 bg-gradient-to-r from-cyan-600 to-emerald-600 rounded-xl hover:from-cyan-500 hover:to-emerald-500 transition-all duration-300 font-bold disabled:opacity-50 disabled:cursor-not-allowed flex-1 relative overflow-hidden group"
+                className="py-4 px-6 text-xl bg-gradient-to-r from-cyan-600 to-emerald-600 rounded-xl hover:from-cyan-500 hover:to-emerald-500 transition-all font-bold disabled:opacity-50"
               >
-                {isAnalyzing ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    Analyzing...
-                  </span>
-                ) : (
-                  <>
-                    <span className="relative z-10">Analyze Image</span>
-                    <div className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  </>
-                )}
+                {isAnalyzing ? 'Checking...' : 'Check It'}
               </button>
             </div>
           </div>
