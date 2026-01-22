@@ -70,10 +70,13 @@ export default function AnalysisResults({ result }: AnalysisResultsProps) {
             {verdict.message}
           </p>
 
-          {/* Confidence Score - Simple */}
+          {/* Confidence Score - Simple with Explanation */}
           <div className="inline-block px-8 py-4 glass rounded-2xl">
-            <p className="text-gray-400 text-sm mb-1">Confidence</p>
-            <p className="text-4xl font-bold gradient-text">{result.finalScore}%</p>
+            <p className="text-gray-400 text-sm mb-1">Confidence Level</p>
+            <p className="text-4xl font-bold gradient-text mb-2">{result.finalScore}%</p>
+            <p className="text-xs text-gray-500">
+              {result.finalScore >= 70 ? 'High confidence' : result.finalScore >= 40 ? 'Medium confidence' : 'Low confidence'}
+            </p>
           </div>
         </div>
 

@@ -21,12 +21,16 @@ export default function Hero() {
 
           {/* Main Question - HUGE and CLEAR */}
           <h2 className="text-5xl md:text-6xl font-bold text-white mb-8 leading-tight">
-            Is Your Photo Real or Fake?
+            Is Your Photo Real or Edited?
           </h2>
 
           {/* Simple Explanation */}
-          <p className="text-2xl md:text-3xl text-gray-300 mb-12">
-            We'll check if your photo has been edited
+          <p className="text-2xl md:text-3xl text-gray-300 mb-6">
+            Upload any photo and we'll detect if it's been manipulated
+          </p>
+          
+          <p className="text-lg text-gray-400 mb-12">
+            Free • Fast • No signup required
           </p>
 
           {/* Scroll Indicator */}
