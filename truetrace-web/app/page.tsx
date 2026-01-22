@@ -5,6 +5,10 @@ import Hero from '@/components/Hero';
 import FileUpload from '@/components/FileUpload';
 import AnalysisResults from '@/components/AnalysisResults';
 import LoadingScreen from '@/components/LoadingScreen';
+import HowItWorks from '@/components/HowItWorks';
+import Examples from '@/components/Examples';
+import FAQ from '@/components/FAQ';
+import Privacy from '@/components/Privacy';
 import { AnalysisResult } from '@/lib/types';
 
 export default function Home() {
@@ -83,6 +87,16 @@ export default function Home() {
         {/* Upload Section */}
         {!analysisResult && !isAnalyzing && (
           <FileUpload onAnalyze={handleAnalyze} isAnalyzing={isAnalyzing} />
+        )}
+
+        {/* Information Sections - Only show before results */}
+        {!analysisResult && !isAnalyzing && (
+          <>
+            <HowItWorks />
+            <Examples />
+            <Privacy />
+            <FAQ />
+          </>
         )}
 
         {/* Error Display */}
