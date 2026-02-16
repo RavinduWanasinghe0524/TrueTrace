@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzeImage } from '@/lib/analyzer';
+import { convertDocumentToImage } from '@/lib/document-converter';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -11,32 +12,53 @@ export async function POST(request: NextRequest) {
 
         if (!file) {
             return NextResponse.json(
-                { error: 'No image file provided' },
+                { error: 'No file provided' },
                 { status: 400 }
             );
         }
 
-        // Validate file type
-        const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        // Validate file type - support images and documents
+        const imageTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        const documentTypes = [
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        ];
+        const validTypes = [...imageTypes, ...documentTypes];
+
         if (!validTypes.includes(file.type)) {
             return NextResponse.json(
-                { error: 'Invalid file type. Please upload a JPEG or PNG image.' },
+                { error: 'Invalid file type. Please upload a JPEG, PNG image, or PDF/Word document.' },
                 { status: 400 }
             );
         }
 
         // Convert to buffer
         const arrayBuffer = await file.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
+        let buffer = Buffer.from(new Uint8Array(arrayBuffer));
 
-        // Analyze the image
+        // If it's a document, convert it to an image first
+        if (documentTypes.includes(file.type)) {
+            try {
+                const convertedBuffer = await convertDocumentToImage(buffer, file.type);
+                buffer = Buffer.from(convertedBuffer);
+            } catch (conversionError) {
+                console.error('Document conversion error:', conversionError);
+                return NextResponse.json(
+                    { error: 'Failed to process document. Please try a different file.' },
+                    { status: 400 }
+                );
+            }
+        }
+
+        // Analyze the image (or converted document image)
         const analysisResult = await analyzeImage(buffer);
 
         return NextResponse.json(analysisResult);
     } catch (error) {
         console.error('Analysis error:', error);
         return NextResponse.json(
-            { error: 'Failed to analyze image' },
+            { error: 'Failed to analyze file' },
             { status: 500 }
         );
     }

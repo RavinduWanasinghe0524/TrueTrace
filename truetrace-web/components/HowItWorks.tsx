@@ -66,7 +66,7 @@ export default function HowItWorks() {
               <div className="text-4xl mb-3">📋</div>
               <h4 className="text-xl font-bold text-white mb-2">Photo Information</h4>
               <p className="text-gray-400">
-                We check the hidden data in your photo (like camera info, date, location) to see if it's been modified.
+                We check the hidden data in your photo (like camera info, date, location) to see if it&apos;s been modified.
               </p>
             </div>
             
@@ -90,7 +90,7 @@ export default function HowItWorks() {
               <div className="text-4xl mb-3">🤖</div>
               <h4 className="text-xl font-bold text-white mb-2">AI Detection</h4>
               <p className="text-gray-400">
-                Our AI analyzes patterns that humans can't see to spot sophisticated edits.
+                Our AI analyzes patterns that humans can&apos;t see to spot sophisticated edits.
               </p>
             </div>
           </div>

@@ -106,7 +106,7 @@ export default function Home() {
               <div className="text-6xl mb-4">😕</div>
               <h3 className="text-3xl font-bold text-red-400 mb-3">Oops! Something Went Wrong</h3>
               <p className="text-xl text-gray-300 mb-6">
-                We couldn't check your photo. Please try again with a different image.
+                We couldn&apos;t check your photo. Please try again with a different image.
               </p>
               {error && <p className="text-sm text-gray-400 mb-6">Error: {error}</p>}
               <button

@@ -28,7 +28,7 @@ export default function FileUpload({ onAnalyze, isAnalyzing }: FileUploadProps) 
       // Check file size (10MB limit)
       const maxSize = 10 * 1024 * 1024; // 10MB in bytes
       if (file.size > maxSize) {
-        alert('⚠️ File is too large!\n\nPlease upload a photo smaller than 10MB.');
+        alert('⚠️ File is too large!\n\nPlease upload a file smaller than 10MB.');
         return;
       }
       handleFileSelect(file);
@@ -54,11 +54,11 @@ export default function FileUpload({ onAnalyze, isAnalyzing }: FileUploadProps) 
           <div className="relative">
             <input
               type="file"
-              accept="image/*"
+              accept="image/*,.pdf,.doc,.docx"
               onChange={handleFileInput}
               className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               disabled={isAnalyzing}
-              aria-label="Upload photo for analysis"
+              aria-label="Upload photo or document for analysis"
             />
             <div className="glass rounded-3xl p-16 border-2 border-dashed border-white/30 hover:border-cyan-400 transition-all duration-300 cursor-pointer">
               <div className="text-center">
@@ -67,15 +67,15 @@ export default function FileUpload({ onAnalyze, isAnalyzing }: FileUploadProps) 
                 
                 {/* Big Clear Text */}
                 <h3 className="text-4xl font-bold text-white mb-4">
-                  Click to Upload Your Photo
+                  Click to Upload Your Photo or Document
                 </h3>
                 
                 <p className="text-xl text-gray-400">
-                  Choose any photo from your computer
+                  Choose any photo or document from your computer
                 </p>
                 
                 <p className="text-sm text-gray-500 mt-3">
-                  JPEG or PNG • Max 10MB
+                  JPEG, PNG, PDF, or Word Document • Max 10MB
                 </p>
               </div>
             </div>
