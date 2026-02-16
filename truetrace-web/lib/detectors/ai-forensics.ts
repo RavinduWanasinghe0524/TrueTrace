@@ -144,9 +144,7 @@ function calculateEdgeComplexity(data: Buffer, width: number, height: number): n
     
     for (let y = 1; y < height - 1; y++) {
         for (let x = 1; x < width - 1; x++) {
-            const idx = y * width + x;
-            
-            // Sobel operator
+        // Sobel operator
             const gx = Math.abs(
                 -data[(y - 1) * width + (x - 1)] +
                 data[(y - 1) * width + (x + 1)] -
@@ -214,7 +212,6 @@ async function detectCopyMove(imageBuffer: Buffer): Promise<number> {
     const width = info.width;
     const height = info.height;
     const blockSize = 16;
-    const threshold = 0.9; // Similarity threshold
     
     let suspiciousMatches = 0;
     const blocks: Map<string, { x: number; y: number }[]> = new Map();

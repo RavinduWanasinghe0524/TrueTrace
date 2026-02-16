@@ -1,0 +1,31 @@
+
+> truetrace-web@0.1.0 build
+> next build
+
+ΓÜá Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\ASUS\package-lock.json as the root directory.
+ To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+ Detected additional lockfiles: 
+   * C:\Users\ASUS\Desktop\New folder\Business\02\truetrace-web\package-lock.json
+
+Γû▓ Next.js 16.1.1 (Turbopack)
+
+  Creating an optimized production build ...
+Γ£ô Compiled successfully in 6.8s
+  Running TypeScript ...
+Failed to compile.
+
+./app/api/analyze/route.ts:43:17
+Type error: Type 'Buffer<ArrayBufferLike>' is not assignable to type 'Buffer<ArrayBuffer>'.
+  Type 'ArrayBufferLike' is not assignable to type 'ArrayBuffer'.
+    Type 'SharedArrayBuffer' is missing the following properties from type 'ArrayBuffer': resizable, resize, detached, transfer, transferToFixedLength
+
+  41 |         if (documentTypes.includes(file.type)) {
+  42 |             try {
+> 43 |                 buffer = await convertDocumentToImage(buffer, file.type);
+     |                 ^
+  44 |             } catch (conversionError) {
+  45 |                 console.error('Document conversion error:', conversionError);
+  46 |                 return NextResponse.json(
+Next.js build worker exited with code: 1 and signal: null

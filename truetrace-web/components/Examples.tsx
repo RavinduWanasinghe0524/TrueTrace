@@ -16,7 +16,7 @@ export default function Examples() {
           What Results Look Like
         </h2>
         <p className="text-xl text-gray-400 text-center mb-12">
-          Here's what you can expect when you upload a photo
+          Here&apos;s what you can expect when you upload a photo
         </p>
 
         {/* Example Cards */}
@@ -38,7 +38,7 @@ export default function Examples() {
                 <p className="text-3xl font-bold gradient-text">85%</p>
               </div>
               <p className="text-gray-300">
-                "We didn't find signs of editing"
+                &quot;We didn&apos;t find signs of editing&quot;
               </p>
               <div className="space-y-2 text-left text-sm">
                 <div className="flex items-center gap-2">
@@ -74,7 +74,7 @@ export default function Examples() {
                 <p className="text-3xl font-bold gradient-text">55%</p>
               </div>
               <p className="text-gray-300">
-                "We found some unusual things"
+                &quot;We found some unusual things&quot;
               </p>
               <div className="space-y-2 text-left text-sm">
                 <div className="flex items-center gap-2">
@@ -110,7 +110,7 @@ export default function Examples() {
                 <p className="text-3xl font-bold gradient-text">25%</p>
               </div>
               <p className="text-gray-300">
-                "We found clear signs of editing"
+                &quot;We found clear signs of editing&quot;
               </p>
               <div className="space-y-2 text-left text-sm">
                 <div className="flex items-center gap-2">

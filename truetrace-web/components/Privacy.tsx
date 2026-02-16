@@ -23,7 +23,7 @@ export default function Privacy() {
         <div className="grid md:grid-cols-2 gap-6 mb-12">
           <div className="glass rounded-2xl p-8">
             <div className="text-5xl mb-4">🔒</div>
-            <h3 className="text-2xl font-bold text-white mb-3">We Don't Store Photos</h3>
+            <h3 className="text-2xl font-bold text-white mb-3">We Don&apos;t Store Photos</h3>
             <p className="text-gray-300 text-lg">
               Your photos are analyzed in real-time and immediately deleted. We never save, store, or keep your images.
             </p>
@@ -33,7 +33,7 @@ export default function Privacy() {
             <div className="text-5xl mb-4">🚫</div>
             <h3 className="text-2xl font-bold text-white mb-3">No Account Needed</h3>
             <p className="text-gray-300 text-lg">
-              You don't need to sign up or provide any personal information. Just upload and get results.
+              You don&apos;t need to sign up or provide any personal information. Just upload and get results.
             </p>
           </div>
 
@@ -58,7 +58,7 @@ export default function Privacy() {
         <div className="glass rounded-2xl p-8 text-center">
           <h3 className="text-2xl font-bold text-white mb-4">Have More Questions?</h3>
           <p className="text-gray-300 text-lg mb-6">
-            We're committed to transparency and your privacy. If you have concerns or questions, feel free to reach out.
+            We&apos;re committed to transparency and your privacy. If you have concerns or questions, feel free to reach out.
           </p>
           <a 
             href="mailto:support@ironlogix.com" 
