@@ -1,321 +1,413 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AnalysisResult } from '@/lib/types';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface AnalysisResultsProps {
   result: AnalysisResult;
 }
 
+// Animated SVG confidence ring
+function ConfidenceRing({ score, color }: { score: number; color: string }) {
+  const radius = 54;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (score / 100) * circumference;
+  const [animated, setAnimated] = useState(0);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setAnimated(score), 400);
+    return () => clearTimeout(timer);
+  }, [score]);
+
+  return (
+    <div className="relative w-40 h-40 mx-auto">
+      <svg className="w-full h-full -rotate-90" viewBox="0 0 128 128">
+        {/* Background ring */}
+        <circle
+          cx="64" cy="64" r={radius}
+          fill="none"
+          stroke="rgba(255,255,255,0.08)"
+          strokeWidth="10"
+        />
+        {/* Animated score ring */}
+        <motion.circle
+          cx="64" cy="64" r={radius}
+          fill="none"
+          stroke={color}
+          strokeWidth="10"
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          initial={{ strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset: circumference - (animated / 100) * circumference }}
+          transition={{ duration: 1.5, ease: 'easeOut', delay: 0.5 }}
+          style={{ filter: `drop-shadow(0 0 8px ${color})` }}
+        />
+      </svg>
+      {/* Score text in center */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <motion.span
+          className="text-3xl font-black"
+          style={{ color }}
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.6, type: 'spring', stiffness: 200 }}
+        >
+          {score}%
+        </motion.span>
+        <span className="text-xs text-gray-400 font-medium mt-1">Authentic</span>
+      </div>
+    </div>
+  );
+}
+
+// Per-detector detail card
+function DetectorCard({
+  detector,
+  icon,
+  index,
+}: {
+  detector: AnalysisResult['results'][0];
+  icon: string;
+  index: number;
+}) {
+  const [open, setOpen] = useState(false);
+
+  const statusColors = {
+    Pass: { bar: '#10b981', text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' },
+    Warning: { bar: '#f59e0b', text: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20' },
+    Fail: { bar: '#ef4444', text: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20' },
+  };
+
+  const colors = statusColors[detector.result];
+  const statusLabels = { Pass: 'Clean', Warning: 'Suspicious', Fail: 'Flagged' };
+
+  const descriptions: Record<string, string> = {
+    'ELA': 'Checks how pixels respond to re-compression at multiple quality levels. Edited regions respond differently.',
+    'Metadata': 'Inspects EXIF data for suspicious editing software, missing dates, or dimension mismatches.',
+    'Noise Variance': 'Analyzes noise texture across image regions. Spliced images show abrupt noise jumps at boundaries.',
+    'AI Forensics': 'Combines copy-move detection, region splicing analysis, and frequency domain checks.',
+  };
+
+  return (
+    <motion.div
+      className={`rounded-xl border ${colors.border} ${colors.bg} overflow-hidden`}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.1 + 0.8 }}
+    >
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center gap-3 p-4 hover:bg-white/5 transition-all"
+      >
+        <span className="text-2xl">{icon}</span>
+        <div className="flex-1 text-left">
+          <div className="flex items-center gap-2">
+            <p className="font-semibold text-white text-sm">{detector.detector}</p>
+            <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${colors.bg} ${colors.text} border ${colors.border}`}>
+              {statusLabels[detector.result]}
+            </span>
+          </div>
+          {/* Progress bar */}
+          <div className="mt-2 flex items-center gap-2">
+            <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full rounded-full"
+                style={{ background: colors.bar }}
+                initial={{ width: 0 }}
+                animate={{ width: `${detector.score}%` }}
+                transition={{ delay: 0.3 + index * 0.1, duration: 0.8, ease: 'easeOut' }}
+              />
+            </div>
+            <span className={`text-xs font-bold min-w-[2.5rem] ${colors.text}`}>{detector.score}%</span>
+          </div>
+        </div>
+        <motion.span
+          className="text-gray-500 text-sm"
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+        >▼</motion.span>
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="px-4 pb-4 space-y-3 border-t border-white/5 pt-3">
+              <p className="text-xs text-gray-500 italic">{descriptions[detector.detector]}</p>
+              <pre className="text-xs text-gray-300 bg-black/30 rounded-lg p-3 whitespace-pre-wrap font-mono leading-relaxed">
+                {detector.details}
+              </pre>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
 export default function AnalysisResults({ result }: AnalysisResultsProps) {
   const [showDetails, setShowDetails] = useState(false);
   const [showParticles, setShowParticles] = useState(false);
+  const particlesRef = useRef<boolean>(false);
 
   useEffect(() => {
-    // Trigger particle explosion on mount
-    setShowParticles(true);
-    setTimeout(() => setShowParticles(false), 2000);
+    if (!particlesRef.current) {
+      particlesRef.current = true;
+      setShowParticles(true);
+      setTimeout(() => setShowParticles(false), 2500);
+    }
   }, []);
 
-  // Determine simple verdict
   const getVerdict = () => {
-    if (result.finalScore >= 70) {
+    if (result.finalScore >= 68) {
       return {
         emoji: '✅',
-        title: 'YOUR PHOTO IS REAL',
-        message: 'We didn\'t find signs of editing',
-        color: 'text-green-400',
-        bgColor: 'bg-green-500/10',
-        borderColor: 'border-green-500/30',
-        glowColor: 'glow-green'
+        title: 'APPEARS AUTHENTIC',
+        message: 'No significant signs of manipulation detected',
+        color: '#10b981',
+        textColor: 'text-emerald-400',
+        bgColor: 'bg-emerald-500/10',
+        borderColor: 'border-emerald-500/30',
+        ringColor: '#10b981',
+        badge: 'REAL',
+        badgeBg: 'bg-emerald-500',
       };
     } else if (result.finalScore >= 40) {
       return {
         emoji: '⚠️',
-        title: 'YOUR PHOTO MIGHT BE EDITED',
-        message: 'We found some unusual things',
-        color: 'text-yellow-400',
-        bgColor: 'bg-yellow-500/10',
-        borderColor: 'border-yellow-500/30',
-        glowColor: 'glow-yellow'
+        title: 'POSSIBLY MODIFIED',
+        message: 'Some suspicious signals found — results are inconclusive',
+        color: '#f59e0b',
+        textColor: 'text-amber-400',
+        bgColor: 'bg-amber-500/10',
+        borderColor: 'border-amber-500/30',
+        ringColor: '#f59e0b',
+        badge: 'UNCERTAIN',
+        badgeBg: 'bg-amber-500',
       };
     } else {
       return {
         emoji: '❌',
-        title: 'YOUR PHOTO WAS EDITED',
-        message: 'We found clear signs of editing',
-        color: 'text-red-400',
+        title: 'LIKELY MANIPULATED',
+        message: 'Multiple forensic signals indicate editing or forgery',
+        color: '#ef4444',
+        textColor: 'text-red-400',
         bgColor: 'bg-red-500/10',
         borderColor: 'border-red-500/30',
-        glowColor: 'glow-red'
+        ringColor: '#ef4444',
+        badge: 'EDITED',
+        badgeBg: 'bg-red-500',
       };
     }
   };
 
   const verdict = getVerdict();
 
+  const detectorIcons: Record<string, string> = {
+    'ELA': '🔬',
+    'Metadata': '🏷️',
+    'Noise Variance': '📡',
+    'AI Forensics': '🤖',
+  };
+
+  const failCount = result.results.filter(r => r.result === 'Fail').length;
+  const passCount = result.results.filter(r => r.result === 'Pass').length;
+  const warnCount = result.results.filter(r => r.result === 'Warning').length;
+
   return (
     <div className="container mx-auto px-4 py-12 relative">
-      {/* Particle Explosion Effect */}
+      {/* Particle burst on mount */}
       {showParticles && (
         <div className="fixed inset-0 pointer-events-none z-50">
-          {[...Array(40)].map((_, i) => (
+          {[...Array(50)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-3 h-3 rounded-full"
+              className="absolute w-2 h-2 rounded-full"
               style={{
                 left: '50%',
                 top: '50%',
-                background: `linear-gradient(135deg, ${
-                  i % 3 === 0 ? '#06b6d4' : i % 3 === 1 ? '#8b5cf6' : '#10b981'
-                })`,
+                background: `hsl(${(i * 7) % 360}, 80%, 60%)`,
               }}
               initial={{ scale: 0, opacity: 1 }}
               animate={{
-                x: Math.cos((i / 40) * Math.PI * 2) * (200 + Math.random() * 200),
-                y: Math.sin((i / 40) * Math.PI * 2) * (200 + Math.random() * 200),
+                x: Math.cos((i / 50) * Math.PI * 2) * (150 + Math.random() * 250),
+                y: Math.sin((i / 50) * Math.PI * 2) * (150 + Math.random() * 250),
                 scale: [0, 1.5, 0],
-                opacity: [1, 1, 0],
+                opacity: [1, 0.8, 0],
               }}
-              transition={{ duration: 1.5, ease: "easeOut" }}
+              transition={{ duration: 2, ease: 'easeOut', delay: Math.random() * 0.3 }}
             />
           ))}
         </div>
       )}
 
       <motion.div
-        initial={{ opacity: 0, scale: 0.8, rotateX: -90 }}
-        animate={{ opacity: 1, scale: 1, rotateX: 0 }}
-        transition={{ 
-          duration: 0.8,
-          type: "spring",
-          stiffness: 100
-        }}
-        className="max-w-3xl mx-auto"
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, type: 'spring', stiffness: 80 }}
+        className="max-w-2xl mx-auto"
       >
-        {/* MAIN RESULT - HOLOGRAPHIC CARD */}
-        <motion.div 
-          className={`glass-holographic rounded-3xl p-12 text-center border-2 ${verdict.borderColor} ${verdict.bgColor} relative overflow-hidden scan-lines`}
-          whileHover={{ scale: 1.02 }}
-          transition={{ type: "spring", stiffness: 300 }}
+        {/* ━━━ MAIN VERDICT CARD ━━━ */}
+        <motion.div
+          className={`glass-holographic rounded-3xl p-8 border-2 ${verdict.borderColor} ${verdict.bgColor} relative overflow-hidden`}
+          whileHover={{ scale: 1.01 }}
+          transition={{ type: 'spring', stiffness: 300 }}
         >
-          {/* Animated Background Glow */}
+          {/* Ambient glow */}
           <motion.div
-            className="absolute inset-0 opacity-20"
+            className="absolute inset-0 opacity-10 pointer-events-none"
             animate={{
               background: [
-                'radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.3) 0%, transparent 50%)',
-                'radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.3) 0%, transparent 50%)',
-                'radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.3) 0%, transparent 50%)',
+                `radial-gradient(circle at 30% 50%, ${verdict.color}55 0%, transparent 60%)`,
+                `radial-gradient(circle at 70% 50%, ${verdict.color}55 0%, transparent 60%)`,
+                `radial-gradient(circle at 30% 50%, ${verdict.color}55 0%, transparent 60%)`,
               ],
             }}
-            transition={{ duration: 5, repeat: Infinity }}
+            transition={{ duration: 6, repeat: Infinity }}
           />
 
-          {/* Giant Emoji with Animation */}
-          <motion.div 
-            className="text-9xl mb-6 relative z-10"
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ 
-              delay: 0.3,
-              type: "spring",
-              stiffness: 200
-            }}
-          >
-            <motion.span
-              animate={{ 
-                scale: [1, 1.2, 1],
-                rotate: [0, 10, -10, 0]
-              }}
-              transition={{ 
-                duration: 2,
-                repeat: Infinity,
-                repeatDelay: 1
-              }}
+          {/* Header row */}
+          <div className="flex items-center justify-between mb-6 relative z-10">
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-widest font-medium mb-1">Analysis Complete</p>
+              <h2 className={`text-2xl md:text-3xl font-black ${verdict.textColor}`}>
+                {verdict.title}
+              </h2>
+              <p className="text-gray-400 text-sm mt-1">{verdict.message}</p>
+            </div>
+            <motion.div
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ delay: 0.3, type: 'spring', stiffness: 200 }}
+              className="text-5xl"
             >
               {verdict.emoji}
-            </motion.span>
-          </motion.div>
-
-          {/* Giant Verdict with Glitch Effect */}
-          <motion.h2 
-            className={`text-5xl md:text-6xl font-bold mb-6 ${verdict.color} relative z-10`}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-          >
-            <motion.span
-              animate={{
-                textShadow: [
-                  `0 0 20px ${verdict.color.includes('green') ? 'rgba(16, 185, 129, 0.5)' : verdict.color.includes('yellow') ? 'rgba(234, 179, 8, 0.5)' : 'rgba(239, 68, 68, 0.5)'}`,
-                  `0 0 40px ${verdict.color.includes('green') ? 'rgba(16, 185, 129, 0.8)' : verdict.color.includes('yellow') ? 'rgba(234, 179, 8, 0.8)' : 'rgba(239, 68, 68, 0.8)'}`,
-                  `0 0 20px ${verdict.color.includes('green') ? 'rgba(16, 185, 129, 0.5)' : verdict.color.includes('yellow') ? 'rgba(234, 179, 8, 0.5)' : 'rgba(239, 68, 68, 0.5)'}`,
-                ],
-              }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              {verdict.title}
-            </motion.span>
-          </motion.h2>
-
-          {/* Simple Message */}
-          <motion.p 
-            className="text-2xl md:text-3xl text-white mb-8 relative z-10"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.7 }}
-          >
-            {verdict.message}
-          </motion.p>
-
-          {/* Animated Confidence Score */}
-          <motion.div 
-            className="inline-block px-8 py-4 glass-holographic rounded-2xl relative z-10"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.9, type: "spring", stiffness: 200 }}
-          >
-            <p className="text-gray-400 text-sm mb-1">Confidence Level</p>
-            
-            {/* Animated Number Counter */}
-            <motion.p 
-              className="text-4xl font-bold gradient-text-cyber mb-2"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              <motion.span
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1, duration: 0.5 }}
-              >
-                {result.finalScore}%
-              </motion.span>
-            </motion.p>
-            
-            {/* Progress Bar */}
-            <div className="w-48 h-2 bg-white/10 rounded-full overflow-hidden mb-2">
-              <motion.div
-                className="h-full bg-gradient-to-r from-cyan-500 via-purple-500 to-emerald-500"
-                initial={{ width: 0 }}
-                animate={{ width: `${result.finalScore}%` }}
-                transition={{ delay: 1.2, duration: 1, ease: "easeOut" }}
-              />
-            </div>
-            
-            <p className="text-xs text-gray-500">
-              {result.finalScore >= 70 ? 'High confidence' : result.finalScore >= 40 ? 'Medium confidence' : 'Low confidence'}
-            </p>
-          </motion.div>
-
-          {/* Floating Particles Around Card */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
-            {[...Array(6)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute w-2 h-2 bg-cyan-400/40 rounded-full"
-                style={{
-                  left: `${20 + i * 15}%`,
-                  top: `${30 + (i % 2) * 40}%`,
-                }}
-                animate={{
-                  y: [0, -30, 0],
-                  opacity: [0.2, 0.6, 0.2],
-                }}
-                transition={{
-                  duration: 3 + i * 0.5,
-                  repeat: Infinity,
-                  delay: i * 0.3,
-                }}
-              />
-            ))}
+            </motion.div>
           </div>
+
+          {/* Confidence ring + stats */}
+          <div className="flex items-center justify-around relative z-10">
+            <ConfidenceRing score={result.finalScore} color={verdict.ringColor} />
+
+            {/* Quick Stats */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981]" />
+                <div>
+                  <p className="text-2xl font-black text-emerald-400">{passCount}</p>
+                  <p className="text-xs text-gray-500">Checks passed</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full bg-amber-400 shadow-[0_0_8px_#f59e0b]" />
+                <div>
+                  <p className="text-2xl font-black text-amber-400">{warnCount}</p>
+                  <p className="text-xs text-gray-500">Warnings</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full bg-red-400 shadow-[0_0_8px_#ef4444]" />
+                <div>
+                  <p className="text-2xl font-black text-red-400">{failCount}</p>
+                  <p className="text-xs text-gray-500">Failed checks</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Verdict badge */}
+          <motion.div
+            className="mt-6 text-center relative z-10"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 1, type: 'spring' }}
+          >
+            <span className={`inline-block ${verdict.badgeBg} text-white text-sm font-black px-6 py-2 rounded-full tracking-widest shadow-lg`}>
+              {verdict.badge}
+            </span>
+          </motion.div>
         </motion.div>
 
-        {/* Optional Details - Collapsed by Default */}
-        <motion.div 
-          className="mt-8"
+        {/* ━━━ TRUST BREAKDOWN ━━━ */}
+        <motion.div
+          className="mt-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.3 }}
+          transition={{ delay: 0.6 }}
         >
           <motion.button
             onClick={() => setShowDetails(!showDetails)}
-            className="w-full px-6 py-4 glass-holographic rounded-xl hover:bg-white/10 transition-all text-lg magnetic-btn"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            className="w-full px-6 py-4 glass-holographic rounded-xl hover:bg-white/10 transition-all text-sm font-semibold text-gray-300"
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.99 }}
           >
             <span className="flex items-center justify-center gap-2">
-              <motion.span
-                animate={{ rotate: showDetails ? 180 : 0 }}
-                transition={{ duration: 0.3 }}
-              >
+              <motion.span animate={{ rotate: showDetails ? 180 : 0 }} transition={{ duration: 0.2 }}>
                 ▼
               </motion.span>
-              {showDetails ? 'Hide Technical Details' : 'Show Technical Details'}
+              {showDetails ? 'Hide Trust Breakdown' : '🔍 View Trust Breakdown — All 4 Forensic Checks'}
             </span>
           </motion.button>
 
-          {showDetails && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mt-4 glass-holographic rounded-xl p-6 overflow-hidden"
-            >
-              <h3 className="text-xl font-bold mb-4 text-white gradient-text-cyber">
-                We ran {result.results.length} checks on your photo:
-              </h3>
-              
-              <div className="space-y-3">
-                {result.results.map((check, index) => {
-                  const icon = check.result === 'Pass' ? '✅' : check.result === 'Fail' ? '❌' : '⚠️';
-                  const statusText = check.result === 'Pass' ? 'Looks good' : check.result === 'Fail' ? 'Found issues' : 'Uncertain';
-                  
-                  return (
-                    <motion.div 
-                      key={index} 
-                      className="flex items-start gap-3 p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-all"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      whileHover={{ scale: 1.02, x: 5 }}
-                    >
-                      <motion.span 
-                        className="text-2xl"
-                        animate={{ rotate: [0, 10, -10, 0] }}
-                        transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
-                      >
-                        {icon}
-                      </motion.span>
-                      <div className="flex-1">
-                        <p className="font-semibold text-white">{check.detector}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <p className="text-sm text-gray-400">{statusText}</p>
-                          <div className="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                            <motion.div
-                              className={`h-full ${
-                                check.result === 'Pass' 
-                                  ? 'bg-green-500' 
-                                  : check.result === 'Fail' 
-                                  ? 'bg-red-500' 
-                                  : 'bg-yellow-500'
-                              }`}
-                              initial={{ width: 0 }}
-                              animate={{ width: `${check.score}%` }}
-                              transition={{ delay: 0.2 + index * 0.1, duration: 0.8 }}
-                            />
-                          </div>
-                          <span className="text-sm text-gray-500 min-w-[3rem] text-right">{check.score}%</span>
-                        </div>
+          <AnimatePresence>
+            {showDetails && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.25 }}
+                className="mt-3 space-y-3"
+              >
+                <p className="text-xs text-gray-500 text-center px-4">
+                  Click any check to see detailed findings. Scores show manipulation probability per method.
+                </p>
+                {result.results.map((det, i) => (
+                  <DetectorCard
+                    key={det.detector}
+                    detector={det}
+                    icon={detectorIcons[det.detector] ?? '🔎'}
+                    index={i}
+                  />
+                ))}
+
+                {/* Debug images */}
+                {result.debugImages && (
+                  <motion.div
+                    className="glass-holographic rounded-xl p-4 mt-4"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.5 }}
+                  >
+                    <p className="text-xs text-gray-500 uppercase tracking-widest mb-3 font-medium">📊 Forensic Visualizations</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1 text-center">ELA Map (red = anomalies)</p>
+                        <img
+                          src={result.debugImages.ela}
+                          alt="ELA Analysis"
+                          className="w-full rounded-lg border border-white/10"
+                        />
                       </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
-            </motion.div>
-          )}
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1 text-center">Noise Map (red = spliced)</p>
+                        <img
+                          src={result.debugImages.noiseMap}
+                          alt="Noise Map"
+                          className="w-full rounded-lg border border-white/10"
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </motion.div>
     </div>
