@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
 
         // Convert to buffer
         const arrayBuffer = await file.arrayBuffer();
-        let buffer = Buffer.from(new Uint8Array(arrayBuffer));
+        let buffer: Buffer = Buffer.from(new Uint8Array(arrayBuffer));
 
         // If it's a document, convert it to an image first
         if (documentTypes.includes(file.type)) {
