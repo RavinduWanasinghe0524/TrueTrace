@@ -1,160 +1,210 @@
-# TrueTrace - Photo Authenticity Detection
+# TrueTrace — AI-Powered Photo Forensics
 
-**TrueTrace** is an AI-powered web application that detects photo manipulation and editing. Built by IronLogix, it helps users verify if photos are authentic or have been digitally altered.
+<p align="center">
+  <img src="public/favicon.ico" alt="TrueTrace Logo" width="64" />
+</p>
 
-## 🎯 What Does It Do?
+<p align="center">
+  <strong>Detect photo manipulation with confidence.</strong><br/>
+  Free · Private · Fast
+</p>
 
-TrueTrace analyzes photos using multiple detection methods to determine if they have been edited or manipulated:
+<p align="center">
+  <img alt="Next.js" src="https://img.shields.io/badge/Next.js-16-black?logo=next.js" />
+  <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?logo=react" />
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript" />
+  <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-3-38BDF8?logo=tailwindcss" />
+  <img alt="License" src="https://img.shields.io/badge/License-Proprietary-red" />
+</p>
 
-- **Metadata Analysis** - Checks hidden photo information (camera, date, software)
-- **Error Level Analysis (ELA)** - Detects compression inconsistencies
-- **Noise Variance Detection** - Identifies unnatural noise patterns
-- **AI Forensics** - Uses machine learning to spot sophisticated edits
+---
 
-## ✨ Features
+## Overview
 
-- 🆓 **Completely Free** - No signup or payment required
-- ⚡ **Fast Analysis** - Results in 3-10 seconds
-- 🔒 **Privacy First** - Photos are not stored or saved
-- 📱 **User Friendly** - Simple interface anyone can understand
-- 🎯 **Confidence Scores** - Clear percentage-based results
+**TrueTrace** is an AI-powered photo forensics web application built by **IronLogix**. It helps users determine whether a photo is authentic or has been digitally altered — no accounts, no fees, no data stored.
 
-## 🚀 Getting Started
+Upload any JPEG or PNG image and TrueTrace runs four independent detection algorithms in parallel, then returns a weighted confidence verdict in seconds.
 
-### Prerequisites
+---
 
-- Node.js 20+ installed
-- npm, yarn, pnpm, or bun
+## Features
 
-### Installation
+| Feature | Description |
+|---|---|
+| 🆓 Completely Free | No signup, no subscription, no hidden fees |
+| ⚡ Fast Analysis | Results in 3–10 seconds |
+| 🔒 Privacy First | Photos are analyzed in-memory and never stored |
+| 🎯 Confidence Score | Weighted 0–100% verdict across four detectors |
+| 📊 Rich Visualizations | Radar chart, confidence meter, analysis timeline |
+| 🎨 Aurora UI | Glassmorphism dark-mode interface with smooth animations |
+| 📱 Responsive | Works seamlessly on desktop and mobile |
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd truetrace-web
-```
+---
 
-2. Install dependencies:
-```bash
-npm install
-# or
-yarn install
-# or
-pnpm install
-```
+## How It Works
 
-3. Run the development server:
+### Detection Pipeline
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+TrueTrace runs **four forensic detectors** in parallel on every uploaded image:
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
+1. **Metadata Analysis** (`lib/detectors/metadata.ts`)  
+   Inspects EXIF/IPTC data for signs of software editing, GPS inconsistencies, or missing camera fingerprints.
 
-## 📁 Project Structure
+2. **Error Level Analysis — ELA** (`lib/detectors/ela.ts`)  
+   Re-compresses the image at a known quality level and measures compression-level inconsistencies. Edited regions typically show different error levels than the original.
+
+3. **Noise Variance Detection** (`lib/detectors/noise-variance.ts`)  
+   Analyses pixel-level noise distribution across image blocks. Cloned or composited regions exhibit statistically abnormal noise patterns.
+
+4. **AI Forensics** (`lib/detectors/ai-forensics.ts`)  
+   Applies machine-learning heuristics to detect sophisticated manipulations such as content-aware fill, deepfake artefacts, and frequency-domain anomalies.
+
+### Verdict Scale
+
+| Score | Verdict |
+|---|---|
+| 70 – 100 % | ✅ Likely authentic |
+| 40 – 69 % | ⚠️ Possibly edited |
+| 0 – 39 % | ❌ Clear signs of manipulation |
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 16 (App Router) |
+| UI | React 19 + Tailwind CSS 3 |
+| Animations | Framer Motion 12 |
+| Image Processing | Sharp 0.34 |
+| Metadata Parsing | exif-parser |
+| Document Support | pdf-lib + pdfjs-dist |
+| Language | TypeScript 5 |
+
+---
+
+## Project Structure
 
 ```
 truetrace-web/
 ├── app/
-│   ├── api/analyze/      # Image analysis API endpoint
-│   ├── page.tsx          # Main page component
-│   └── layout.tsx        # Root layout
+│   ├── api/analyze/          # POST endpoint — runs the detection pipeline
+│   ├── page.tsx              # Root page (upload → analyze → results flow)
+│   ├── layout.tsx            # Root layout & global metadata
+│   └── globals.css           # Design tokens, aurora background, utility classes
+│
 ├── components/
-│   ├── Hero.tsx          # Landing section
-│   ├── FileUpload.tsx    # Photo upload interface
-│   ├── AnalysisResults.tsx  # Results display
-│   ├── HowItWorks.tsx    # Explainer section
-│   ├── FAQ.tsx           # Frequently asked questions
-│   ├── Privacy.tsx       # Privacy information
-│   └── LoadingScreen.tsx # Analysis loading state
+│   ├── Navbar.tsx            # Sticky navigation bar
+│   ├── Hero.tsx              # Landing hero section
+│   ├── StatsBar.tsx          # Live accuracy / photos-analyzed stats
+│   ├── FileUpload.tsx        # Drag-and-drop image upload interface
+│   ├── LoadingScreen.tsx     # Animated analysis progress overlay
+│   ├── AnalysisResults.tsx   # Full results breakdown
+│   ├── ConfidenceMeter.tsx   # Animated score gauge
+│   ├── RadarChart.tsx        # Per-detector radar visualization
+│   ├── AnalysisTimeline.tsx  # Step-by-step detection timeline
+│   ├── BeforeAfterSlider.tsx # Original vs. ELA image comparison
+│   ├── DebugVisualization.tsx# Developer-facing raw signal view
+│   ├── HowItWorks.tsx        # Explainer section
+│   ├── Examples.tsx          # Sample image walkthroughs
+│   ├── Privacy.tsx           # Privacy policy section
+│   ├── FAQ.tsx               # Frequently asked questions
+│   └── ParticleBackground.tsx# Ambient particle canvas effect
+│
 ├── lib/
-│   ├── analyzer.ts       # Main analysis logic
-│   ├── detectors/        # Detection algorithms
-│   └── types.ts          # TypeScript types
-└── public/               # Static assets
+│   ├── analyzer.ts           # Orchestrates all detectors & computes final score
+│   ├── document-converter.ts # Converts PDF pages to images for analysis
+│   ├── types.ts              # Shared TypeScript types
+│   └── detectors/
+│       ├── metadata.ts       # EXIF / metadata forensics
+│       ├── ela.ts            # Error Level Analysis
+│       ├── noise-variance.ts # Noise distribution analysis
+│       └── ai-forensics.ts   # ML-based heuristic detection
+│
+├── types/                    # Global type declarations (e.g. exif-parser.d.ts)
+└── public/                   # Static assets (favicon, images)
 ```
-
-## 🔧 Technologies Used
-
-- **Next.js 16** - React framework
-- **TypeScript** - Type safety
-- **Tailwind CSS** - Styling
-- **Framer Motion** - Animations
-- **Sharp** - Image processing
-- **EXIF Parser** - Metadata extraction
-
-## 📊 How It Works
-
-1. **Upload** - User uploads a JPEG or PNG image (max 10MB)
-2. **Analysis** - Four detection methods run in parallel:
-   - Metadata checker looks for tampering signs
-   - ELA highlights compression inconsistencies
-   - Noise detector finds unnatural patterns
-   - AI forensics analyzes advanced manipulations
-3. **Results** - Weighted confidence score (0-100%) determines verdict:
-   - 70-100%: Photo is likely real ✅
-   - 40-69%: Possible editing ⚠️
-   - 0-39%: Clear signs of editing ❌
-
-## 🔒 Privacy & Security
-
-- Photos are analyzed in real-time and immediately deleted
-- No user accounts or personal information required
-- No data stored on servers
-- Secure HTTPS connections
-- Client-side processing where possible
-
-## 🛠️ Development
-
-### Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
-
-### Adding New Detection Methods
-
-1. Create a new detector in `lib/detectors/`
-2. Import and call it in `lib/analyzer.ts`
-3. Add appropriate weight to the scoring system
-
-## 📝 License
-
-This project is private and proprietary to IronLogix.
-
-## 👥 About IronLogix
-
-IronLogix specializes in AI-powered security and forensic tools. TrueTrace is designed to help individuals and organizations verify photo authenticity.
-
-## 📞 Support
-
-For questions or support:
-- Email: support@ironlogix.com
-- Website: [Your website URL]
-
-## 🚧 Roadmap
-
-- [ ] Video manipulation detection
-- [ ] Batch processing
-- [ ] API access
-- [ ] Mobile app
-- [ ] Advanced reporting features
 
 ---
 
-**Note**: TrueTrace is a helpful detection tool but not a legal certification. For official forensic analysis, consult professional forensic experts.
+## Getting Started
+
+### Prerequisites
+
+- **Node.js** 20 or later
+- **npm** (comes with Node.js)
+
+### Installation
+
+```bash
+# 1. Clone the repository
+git clone <repository-url>
+cd truetrace-web
+
+# 2. Install dependencies
+npm install
+
+# 3. Start the development server
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Available Scripts
+
+| Script | Description |
+|---|---|
+| `npm run dev` | Start the Next.js development server |
+| `npm run build` | Build the production bundle |
+| `npm run start` | Serve the production build |
+| `npm run lint` | Run ESLint |
+
+---
+
+## Privacy & Security
+
+- Images are processed **in-memory only** — no file is written to disk or stored in a database.
+- **No user accounts** or personal data are collected.
+- Analysis runs server-side via a short-lived API call; the image buffer is garbage-collected immediately after.
+- All traffic is served over **HTTPS**.
+
+---
+
+## Extending TrueTrace
+
+### Adding a New Detector
+
+1. Create `lib/detectors/<your-detector>.ts` and export a function that accepts a `Buffer` and returns `{ score: number; flags: string[] }`.
+2. Import and call it inside `lib/analyzer.ts` alongside the existing detectors.
+3. Add an appropriate weight to the scoring formula in `analyzer.ts`.
+4. Optionally surface the result in `AnalysisResults.tsx`.
+
+---
+
+## Roadmap
+
+- [ ] Video manipulation detection
+- [ ] Batch / bulk image processing
+- [ ] Public API with rate limiting
+- [ ] Shareable report links
+- [ ] Mobile app (iOS & Android)
+- [ ] Advanced PDF forensics
+
+---
+
+## License
+
+This project is **proprietary** and confidential. All rights reserved by **IronLogix**.  
+Unauthorized use, reproduction, or distribution is strictly prohibited.
+
+---
+
+## About IronLogix
+
+IronLogix builds AI-powered security and forensic tools for individuals and organizations who need to trust their digital media.
+
+📧 [support@ironlogix.com](mailto:support@ironlogix.com)
+
+---
+
+> **Disclaimer:** TrueTrace is a forensic aid, not a legal certification. For official or court-admissible forensic analysis, consult a certified digital forensics professional.
