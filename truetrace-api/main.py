@@ -19,10 +19,14 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     """Startup / shutdown lifecycle."""
     logger.info(f"TrueTrace API v{settings.app_version} starting ({settings.app_env})")
-    await init_indexes()
+    try:
+        await init_indexes()
+        logger.info("MongoDB indexes ready")
+    except Exception as e:
+        logger.warning(f"MongoDB index init failed (non-fatal): {e}")
     yield
     await close_connection()
-    logger.info("TrueTrace API shut down cleanly")
+    logger.info("TrueTrace API shut down")
 
 
 app = FastAPI(
@@ -32,7 +36,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# ── CORS ─────────────────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.origins_list,
@@ -41,15 +44,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Routers ──────────────────────────────────────────────────
 app.include_router(analyze_router)
 
 
-# ── Health Check ─────────────────────────────────────────────
 @app.get("/health", tags=["health"])
 async def health():
-    return {
-        "status": "ok",
-        "version": settings.app_version,
-        "env": settings.app_env,
-    }
+    return {"status": "ok", "version": settings.app_version, "env": settings.app_env}
