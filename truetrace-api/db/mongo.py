@@ -2,6 +2,8 @@
 MongoDB connection + collection accessors.
 Uses Motor (async) driver — compatible with FastAPI's async event loop.
 """
+import re
+from urllib.parse import quote_plus
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
 from pymongo import IndexModel, ASCENDING, DESCENDING
 from core.config import get_settings
@@ -13,11 +15,33 @@ settings = get_settings()
 _client: AsyncIOMotorClient | None = None
 
 
+def _safe_uri(uri: str) -> str:
+    """
+    Safely encodes username and password in MongoDB URI.
+    Uses rfind('@') to handle passwords that contain '@' symbols.
+    """
+    if "://" not in uri:
+        return uri
+    protocol, rest = uri.split("://", 1)
+    at_index = rest.rfind("@")
+    if at_index == -1:
+        return uri
+    credentials = rest[:at_index]
+    host_part   = rest[at_index:]
+    colon_index = credentials.find(":")
+    if colon_index == -1:
+        return uri
+    username = credentials[:colon_index]
+    password = credentials[colon_index + 1:]
+    return f"{protocol}://{quote_plus(username)}:{quote_plus(password)}{host_part}"
+
+
 def get_client() -> AsyncIOMotorClient:
     global _client
     if _client is None:
+        safe_uri = _safe_uri(settings.mongodb_uri)
         _client = AsyncIOMotorClient(
-            settings.mongodb_uri,
+            safe_uri,
             serverSelectionTimeoutMS=5000,
         )
     return _client
@@ -43,18 +67,10 @@ async def init_indexes() -> None:
     analyses = get_analyses_collection()
 
     indexes = [
-        # Fast lookup by file hash (deduplication + cache)
-        IndexModel([("fileHash", ASCENDING)], name="fileHash_idx"),
-        # Sort analyses by date (dashboard / history queries)
+        IndexModel([("fileHash", ASCENDING)],  name="fileHash_idx"),
         IndexModel([("uploadedAt", DESCENDING)], name="uploadedAt_idx"),
-        # Filter by verdict
-        IndexModel([("verdict", ASCENDING)], name="verdict_idx"),
-        # Shareable report token lookup
-        IndexModel(
-            [("shareToken", ASCENDING)],
-            name="shareToken_idx",
-            sparse=True,  # only index docs that have a shareToken
-        ),
+        IndexModel([("verdict", ASCENDING)],    name="verdict_idx"),
+        IndexModel([("shareToken", ASCENDING)], name="shareToken_idx", sparse=True),
     ]
 
     await analyses.create_indexes(indexes)
@@ -67,3 +83,4 @@ async def close_connection() -> None:
         _client.close()
         _client = None
         logger.info("MongoDB connection closed")
+
