@@ -1,24 +1,28 @@
 """
 TrueTrace API — FastAPI entry point
 """
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from core.config import get_settings
-from db.mongo import close_connection
+from db.mongo import close_connection, init_indexes
 from routers.analyze import router as analyze_router
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 settings = get_settings()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup / shutdown events."""
-    print(f"TrueTrace API v{settings.app_version} starting ({settings.app_env})")
+    """Startup / shutdown lifecycle."""
+    logger.info(f"TrueTrace API v{settings.app_version} starting ({settings.app_env})")
+    await init_indexes()
     yield
     await close_connection()
-    print("MongoDB connection closed")
+    logger.info("TrueTrace API shut down cleanly")
 
 
 app = FastAPI(
