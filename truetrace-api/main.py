@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from core.config import get_settings
-from core.redis_client import get_redis, close_redis
+from core.redis_client import get_redis, close_redis, redis_status
 from db.mongo import close_connection, init_indexes
 from routers.analyze import router as analyze_router
 
@@ -19,19 +19,13 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info(f"TrueTrace API v{settings.app_version} starting ({settings.app_env})")
-
-    # MongoDB indexes (non-fatal if fails)
     try:
         await init_indexes()
         logger.info("MongoDB indexes ready")
     except Exception as e:
         logger.warning(f"MongoDB index init failed (non-fatal): {e}")
-
-    # Redis connection (optional)
-    await get_redis()
-
+    await get_redis()   # connect to Redis on startup
     yield
-
     await close_redis()
     await close_connection()
     logger.info("TrueTrace API shut down cleanly")
@@ -57,10 +51,9 @@ app.include_router(analyze_router)
 
 @app.get("/health", tags=["health"])
 async def health():
-    redis = await get_redis()
     return {
         "status":  "ok",
         "version": settings.app_version,
         "env":     settings.app_env,
-        "redis":   "connected" if redis else "not configured",
+        "redis":   redis_status(),   # uses flag, not object truthiness
     }
