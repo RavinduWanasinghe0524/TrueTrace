@@ -1,0 +1,70 @@
+{
+  "timestamp": "2026-10-04 21:46:52",
+  "total_cases": 1000,
+  "overall_accuracy_pct": 82.1,
+  "false_positive_rate_pct": 8.53,
+  "per_category_metrics": {
+    "ai_generated": {
+      "samples": 250,
+      "tp": 249,
+      "fp": 42,
+      "fn": 1,
+      "precision": 85.6,
+      "recall": 99.6,
+      "f1_score": 92.1
+    },
+    "document_tampered": {
+      "samples": 250,
+      "tp": 250,
+      "fp": 17,
+      "fn": 0,
+      "precision": 93.6,
+      "recall": 100.0,
+      "f1_score": 96.7
+    },
+    "manipulated_image": {
+      "samples": 250,
+      "tp": 139,
+      "fp": 56,
+      "fn": 111,
+      "precision": 71.3,
+      "recall": 55.6,
+      "f1_score": 62.5
+    },
+    "authentic": {
+      "samples": 250,
+      "tp": 183,
+      "fp": 64,
+      "fn": 67,
+      "precision": 74.1,
+      "recall": 73.2,
+      "f1_score": 73.6
+    }
+  },
+  "confusion_matrix": {
+    "ai_generated": {
+      "ai_generated": 249,
+      "document_tampered": 0,
+      "manipulated_image": 1,
+      "authentic": 0
+    },
+    "document_tampered": {
+      "ai_generated": 0,
+      "document_tampered": 250,
+      "manipulated_image": 0,
+      "authentic": 0
+    },
+    "manipulated_image": {
+      "ai_generated": 40,
+      "document_tampered": 7,
+      "manipulated_image": 139,
+      "authentic": 64
+    },
+    "authentic": {
+      "ai_generated": 2,
+      "document_tampered": 10,
+      "manipulated_image": 55,
+      "authentic": 183
+    }
+  }
+}
