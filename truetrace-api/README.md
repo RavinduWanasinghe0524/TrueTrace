@@ -172,7 +172,7 @@ cp .env.example .env      # macOS / Linux
 # .env
 
 # MongoDB Atlas connection string
-MONGODB_URI=mongodb+srv://truetrace-admin:YOUR_PASSWORD@truetrace-cluster.xxxxx.mongodb.net/truetrace?retryWrites=true&w=majority
+MONGODB_URI=mongodb+srv://<db_user>:<db_password>@<cluster>.mongodb.net/<dbname>?retryWrites=true&w=majority
 
 # Upstash Redis (optional, for rate limiting)
 UPSTASH_REDIS_URL=rediss://default:PASSWORD@host.upstash.io:6380
