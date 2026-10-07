@@ -77,6 +77,14 @@ function useTypingEffect(text: string, speed = 45, startDelay = 300) {
    Animated particle field
 ────────────────────────────────────────── */
 function ParticleField() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
   const particles = Array.from({ length: 40 }, (_, i) => ({
     id: i,
     x: Math.random() * 100,
