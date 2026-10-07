@@ -241,17 +241,22 @@ export default function LoadingScreen({ progress = 0 }: LoadingScreenProps) {
 
       {/* Floating particles */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {Array.from({ length: 30 }).map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-px h-px rounded-full bg-cyan-400"
-            style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%` }}
-            animate={{ opacity: [0, 0.8, 0], y: [0, -80] }}
-            transition={{ duration: 3 + Math.random() * 3, repeat: Infinity, delay: Math.random() * 3 }}
-          />
-        ))}
+        {Array.from({ length: 30 }).map((_, i) => {
+          const left = ((i * 37 + 13) % 100);
+          const top = ((i * 73 + 29) % 100);
+          const duration = 3 + ((i * 13) % 30) / 10;
+          const delay = ((i * 7) % 30) / 10;
+          return (
+            <motion.div
+              key={i}
+              className="absolute w-px h-px rounded-full bg-cyan-400"
+              style={{ left: `${left}%`, top: `${top}%` }}
+              animate={{ opacity: [0, 0.8, 0], y: [0, -80] }}
+              transition={{ duration, repeat: Infinity, delay }}
+            />
+          );
+        })}
       </div>
-
       {/* Corner brackets */}
       {[
         { top: 24, left: 24, borderBottom: 'none', borderRight: 'none' },
